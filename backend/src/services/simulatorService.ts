@@ -16,9 +16,28 @@ function randomElement<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+/** For check-ins only — excludes members who are already inside. */
+async function getRandomAvailableMemberForGym(gymId: string): Promise<{ id: string; name: string; planType: string } | null> {
+  const { rows } = await pool.query(
+    `SELECT id, name, plan_type FROM members
+     WHERE gym_id = $1
+       AND status = 'active'
+       AND id NOT IN (
+         SELECT member_id FROM checkins
+         WHERE gym_id = $1 AND checked_out IS NULL
+       )
+     ORDER BY RANDOM() LIMIT 1`,
+    [gymId],
+  );
+  if (!rows[0]) return null;
+  return { id: rows[0].id, name: rows[0].name, planType: rows[0].plan_type };
+}
+
+/** For payments — any active member can pay, regardless of check-in status. */
 async function getRandomMemberForGym(gymId: string): Promise<{ id: string; name: string; planType: string } | null> {
   const { rows } = await pool.query(
-    `SELECT id, name, plan_type FROM members WHERE gym_id = $1 AND status = 'active'
+    `SELECT id, name, plan_type FROM members
+     WHERE gym_id = $1 AND status = 'active'
      ORDER BY RANDOM() LIMIT 1`,
     [gymId],
   );
@@ -38,7 +57,7 @@ async function getLiveOccupancyAndCapacity(gymId: string): Promise<{ count: numb
 }
 
 export async function simulateCheckin(gymId: string): Promise<void> {
-  const member = await getRandomMemberForGym(gymId);
+  const member = await getRandomAvailableMemberForGym(gymId);
   if (!member) return;
 
   const now = new Date().toISOString();
