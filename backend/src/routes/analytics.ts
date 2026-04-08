@@ -51,7 +51,12 @@ router.get('/revenue/:gymId', async (req: Request, res: Response) => {
 router.get('/heatmap/:gymId', async (req: Request, res: Response) => {
   try {
     const { rows } = await pool.query(
-      `SELECT * FROM gym_hourly_stats WHERE gym_id = $1
+      `SELECT gym_id,
+              day_of_week,
+              hour_of_day,
+              checkin_count::INTEGER AS total_checkins
+       FROM gym_hourly_stats
+       WHERE gym_id = $1
        ORDER BY day_of_week, hour_of_day`,
       [req.params.gymId],
     );
