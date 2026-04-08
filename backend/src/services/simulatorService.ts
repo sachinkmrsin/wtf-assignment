@@ -17,7 +17,9 @@ function randomElement<T>(arr: T[]): T {
 }
 
 /** For check-ins only — excludes members who are already inside. */
-async function getRandomAvailableMemberForGym(gymId: string): Promise<{ id: string; name: string; planType: string } | null> {
+async function getRandomAvailableMemberForGym(
+  gymId: string
+): Promise<{ id: string; name: string; planType: string } | null> {
   const { rows } = await pool.query(
     `SELECT id, name, plan_type FROM members
      WHERE gym_id = $1
@@ -27,27 +29,33 @@ async function getRandomAvailableMemberForGym(gymId: string): Promise<{ id: stri
          WHERE gym_id = $1 AND checked_out IS NULL
        )
      ORDER BY RANDOM() LIMIT 1`,
-    [gymId],
+    [gymId]
   );
   if (!rows[0]) return null;
   return { id: rows[0].id, name: rows[0].name, planType: rows[0].plan_type };
 }
 
 /** For payments — any active member can pay, regardless of check-in status. */
-async function getRandomMemberForGym(gymId: string): Promise<{ id: string; name: string; planType: string } | null> {
+async function getRandomMemberForGym(
+  gymId: string
+): Promise<{ id: string; name: string; planType: string } | null> {
   const { rows } = await pool.query(
     `SELECT id, name, plan_type FROM members
      WHERE gym_id = $1 AND status = 'active'
      ORDER BY RANDOM() LIMIT 1`,
-    [gymId],
+    [gymId]
   );
   if (!rows[0]) return null;
   return { id: rows[0].id, name: rows[0].name, planType: rows[0].plan_type };
 }
 
-async function getLiveOccupancyAndCapacity(gymId: string): Promise<{ count: number; capacity: number }> {
+async function getLiveOccupancyAndCapacity(
+  gymId: string
+): Promise<{ count: number; capacity: number }> {
   const [occRow, gymRow] = await Promise.all([
-    pool.query(`SELECT COUNT(*) AS count FROM checkins WHERE gym_id = $1 AND checked_out IS NULL`, [gymId]),
+    pool.query(`SELECT COUNT(*) AS count FROM checkins WHERE gym_id = $1 AND checked_out IS NULL`, [
+      gymId,
+    ]),
     pool.query(`SELECT capacity FROM gyms WHERE id = $1`, [gymId]),
   ]);
   return {
@@ -66,14 +74,11 @@ export async function simulateCheckin(gymId: string): Promise<void> {
     `INSERT INTO checkins (gym_id, member_id, checked_in)
      VALUES ($1, $2, NOW())
      RETURNING id`,
-    [gymId, member.id],
+    [gymId, member.id]
   );
   const checkinId = insertRows[0].id;
 
-  await pool.query(
-    `UPDATE members SET last_checkin_at = NOW() WHERE id = $1`,
-    [member.id],
-  );
+  await pool.query(`UPDATE members SET last_checkin_at = NOW() WHERE id = $1`, [member.id]);
 
   const { count, capacity } = await getLiveOccupancyAndCapacity(gymId);
   const capacityPct = capacity > 0 ? Math.round((count / capacity) * 100) : 0;
@@ -115,17 +120,14 @@ export async function simulateCheckout(gymId: string): Promise<void> {
      JOIN members m ON m.id = c.member_id
      WHERE c.gym_id = $1 AND c.checked_out IS NULL
      ORDER BY c.checked_in ASC LIMIT 1`,
-    [gymId],
+    [gymId]
   );
   if (!rows.length) return;
 
   const { id: checkinId, member_id: memberId, member_name: memberName } = rows[0];
   const now = new Date().toISOString();
 
-  await pool.query(
-    `UPDATE checkins SET checked_out = NOW() WHERE id = $1`,
-    [checkinId],
-  );
+  await pool.query(`UPDATE checkins SET checked_out = NOW() WHERE id = $1`, [checkinId]);
 
   const { count, capacity } = await getLiveOccupancyAndCapacity(gymId);
   const capacityPct = capacity > 0 ? Math.round((count / capacity) * 100) : 0;
@@ -171,14 +173,14 @@ export async function simulatePayment(gymId: string): Promise<void> {
   await pool.query(
     `INSERT INTO payments (gym_id, member_id, amount, plan_type, paid_at)
      VALUES ($1, $2, $3, $4, NOW())`,
-    [gymId, member.id, amount, member.planType],
+    [gymId, member.id, amount, member.planType]
   );
 
   // Get today's total revenue after this payment
   const { rows: revRows } = await pool.query(
     `SELECT COALESCE(SUM(amount), 0) AS today_total
      FROM payments WHERE gym_id = $1 AND paid_at >= CURRENT_DATE`,
-    [gymId],
+    [gymId]
   );
   const todayTotal = parseFloat(revRows[0].today_total);
 

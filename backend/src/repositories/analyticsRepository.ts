@@ -34,7 +34,7 @@ export async function getCrossGymRevenue(days: number = 30): Promise<CrossGymRev
     WHERE p.paid_at >= NOW() - ($1::int * INTERVAL '1 day')
     GROUP BY p.gym_id, g.name
     ORDER BY total_revenue DESC`,
-    [days],
+    [days]
   );
   return rows;
 }

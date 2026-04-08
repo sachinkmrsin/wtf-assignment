@@ -7,12 +7,7 @@ import {
   SocketData,
 } from '../types/events';
 
-let io: SocketIOServer<
-  ClientToServerEvents,
-  ServerToClientEvents,
-  InterServerEvents,
-  SocketData
->;
+let io: SocketIOServer<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
 
 export function initSocketIO(httpServer: HttpServer): typeof io {
   io = new SocketIOServer(httpServer, {
@@ -52,25 +47,19 @@ export function getIO(): typeof io {
 
 // ── Broadcast helpers ────────────────────────────────────────────────────────
 
-export function broadcastToGym<
-  Ev extends keyof ServerToClientEvents,
->(
+export function broadcastToGym<Ev extends keyof ServerToClientEvents>(
   gymId: string,
   event: Ev,
-  data: Parameters<ServerToClientEvents[Ev]>[0],
+  data: Parameters<ServerToClientEvents[Ev]>[0]
 ): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (getIO().to(`gym:${gymId}`) as any).emit(event, data);
 }
 
-export function broadcastToAll<
-  Ev extends keyof ServerToClientEvents,
->(
+export function broadcastToAll<Ev extends keyof ServerToClientEvents>(
   event: Ev,
-  data: Parameters<ServerToClientEvents[Ev]>[0],
+  data: Parameters<ServerToClientEvents[Ev]>[0]
 ): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (getIO() as any).emit(event, data);
 }
-
-

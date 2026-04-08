@@ -10,17 +10,17 @@ jest.mock('../../src/db/pool', () => ({
 }));
 jest.mock('../../src/websocket', () => ({
   __esModule: true,
-  initSocketIO:   jest.fn(),
+  initSocketIO: jest.fn(),
   broadcastToGym: jest.fn(),
   broadcastToAll: jest.fn(),
 }));
 // Mock the jobs/simulator module to prevent real setInterval timers in tests
 jest.mock('../../src/jobs/simulator', () => ({
   __esModule: true,
-  startSimulator:      jest.fn(),
-  stopSimulator:       jest.fn(),
-  resetSimulator:      jest.fn().mockResolvedValue(undefined),
-  getSimulatorStatus:  jest.fn().mockReturnValue({ state: 'paused', speed: 1 }),
+  startSimulator: jest.fn(),
+  stopSimulator: jest.fn(),
+  resetSimulator: jest.fn().mockResolvedValue(undefined),
+  getSimulatorStatus: jest.fn().mockReturnValue({ state: 'paused', speed: 1 }),
 }));
 
 import request from 'supertest';
@@ -28,9 +28,9 @@ import express, { Express } from 'express';
 import simulatorRouter from '../../src/routes/simulator';
 import * as simulatorJob from '../../src/jobs/simulator';
 
-const mockStart  = simulatorJob.startSimulator  as jest.Mock;
-const mockStop   = simulatorJob.stopSimulator   as jest.Mock;
-const mockReset  = simulatorJob.resetSimulator  as jest.Mock;
+const mockStart = simulatorJob.startSimulator as jest.Mock;
+const mockStop = simulatorJob.stopSimulator as jest.Mock;
+const mockReset = simulatorJob.resetSimulator as jest.Mock;
 const mockStatus = simulatorJob.getSimulatorStatus as jest.Mock;
 
 function createApp(): Express {
@@ -46,9 +46,7 @@ beforeEach(() => jest.clearAllMocks());
 
 describe('POST /api/simulator/start', () => {
   it('returns 200 with { status: "running", speed } when called with a valid speed', async () => {
-    const res = await request(createApp())
-      .post('/api/simulator/start')
-      .send({ speed: 1 });
+    const res = await request(createApp()).post('/api/simulator/start').send({ speed: 1 });
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({ status: 'running', speed: 1 });
@@ -58,9 +56,7 @@ describe('POST /api/simulator/start', () => {
   it('returns { status: "running" } for each valid speed (1, 5, 10)', async () => {
     for (const speed of [1, 5, 10] as const) {
       jest.clearAllMocks();
-      const res = await request(createApp())
-        .post('/api/simulator/start')
-        .send({ speed });
+      const res = await request(createApp()).post('/api/simulator/start').send({ speed });
       expect(res.status).toBe(200);
       expect(res.body.status).toBe('running');
       expect(res.body.speed).toBe(speed);
@@ -68,9 +64,7 @@ describe('POST /api/simulator/start', () => {
   });
 
   it('returns 400 when speed is missing from the request body', async () => {
-    const res = await request(createApp())
-      .post('/api/simulator/start')
-      .send({});
+    const res = await request(createApp()).post('/api/simulator/start').send({});
 
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty('error');
@@ -78,9 +72,7 @@ describe('POST /api/simulator/start', () => {
   });
 
   it('returns 400 when speed is an invalid value', async () => {
-    const res = await request(createApp())
-      .post('/api/simulator/start')
-      .send({ speed: 99 });
+    const res = await request(createApp()).post('/api/simulator/start').send({ speed: 99 });
 
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty('error');
@@ -124,4 +116,3 @@ describe('GET /api/simulator/status', () => {
     expect(res.body).toMatchObject({ state: 'running', speed: 5 });
   });
 });
-

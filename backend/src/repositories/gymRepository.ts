@@ -123,7 +123,7 @@ export async function findGymById(id: string): Promise<GymListItem | null> {
     FROM gyms g
     WHERE g.id = $1
     `,
-    [id],
+    [id]
   );
   return rows[0] ?? null;
 }
@@ -137,19 +137,19 @@ export async function findGymLiveSnapshot(gymId: string): Promise<GymLiveSnapsho
   const [gymRes, occupancyRes, revenueRes, eventsRes, anomalyRes] = await Promise.all([
     pool.query<{ id: string; name: string; city: string; capacity: number; status: string }>(
       `SELECT id, name, city, capacity, status FROM gyms WHERE id = $1`,
-      [gymId],
+      [gymId]
     ),
     pool.query<{ count: number }>(
       `SELECT COUNT(*)::INT AS count
        FROM checkins
        WHERE gym_id = $1 AND checked_out IS NULL`,
-      [gymId],
+      [gymId]
     ),
     pool.query<{ total: number }>(
       `SELECT COALESCE(SUM(amount), 0)::FLOAT AS total
        FROM payments
        WHERE gym_id = $1 AND paid_at >= CURRENT_DATE`,
-      [gymId],
+      [gymId]
     ),
     pool.query<RecentEvent>(
       `SELECT member_id, checked_in, checked_out
@@ -157,14 +157,14 @@ export async function findGymLiveSnapshot(gymId: string): Promise<GymLiveSnapsho
        WHERE gym_id = $1
        ORDER BY checked_in DESC
        LIMIT 10`,
-      [gymId],
+      [gymId]
     ),
     pool.query<ActiveAnomaly>(
       `SELECT id, type, severity, message, detected_at
        FROM anomalies
        WHERE gym_id = $1 AND resolved = FALSE
        ORDER BY detected_at DESC`,
-      [gymId],
+      [gymId]
     ),
   ]);
 
@@ -196,7 +196,7 @@ export async function findGymAnalytics(gymId: string, days: number): Promise<Gym
        FROM gym_hourly_stats
        WHERE gym_id = $1
        ORDER BY day_of_week, hour_of_day`,
-      [gymId],
+      [gymId]
     ),
     // Revenue broken down by plan type for the requested window
     pool.query<RevenuePlanEntry>(
@@ -206,7 +206,7 @@ export async function findGymAnalytics(gymId: string, days: number): Promise<Gym
          AND paid_at >= NOW() - ($2::int * INTERVAL '1 day')
        GROUP BY plan_type
        ORDER BY total_revenue DESC`,
-      [gymId, days],
+      [gymId, days]
     ),
     // Active members who haven't checked in for 45+ days (churn risk)
     pool.query<ChurnRiskMember>(
@@ -216,7 +216,7 @@ export async function findGymAnalytics(gymId: string, days: number): Promise<Gym
          AND status = 'active'
          AND (last_checkin_at IS NULL OR last_checkin_at < NOW() - ($2::int * INTERVAL '1 day'))
        ORDER BY last_checkin_at ASC NULLS FIRST`,
-      [gymId, 45],
+      [gymId, 45]
     ),
     // New vs renewal payment ratio in the requested window
     pool.query<NewRenewalEntry>(
@@ -225,7 +225,7 @@ export async function findGymAnalytics(gymId: string, days: number): Promise<Gym
        WHERE gym_id = $1
          AND paid_at >= NOW() - ($2::int * INTERVAL '1 day')
        GROUP BY payment_type`,
-      [gymId, days],
+      [gymId, days]
     ),
   ]);
 
@@ -236,4 +236,3 @@ export async function findGymAnalytics(gymId: string, days: number): Promise<Gym
     new_renewal_ratio: newRenewalRes.rows,
   };
 }
-

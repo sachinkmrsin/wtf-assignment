@@ -9,7 +9,9 @@
     "seed": "ts-node src/db/seeds/seed.ts",
     "test": "jest",
     "test:unit": "jest --selectProjects unit",
-    "test:integration": "jest --selectProjects integration"
+    "test:integration": "jest --selectProjects integration",
+    "format": "prettier --write \"**/*.{ts,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,js,json,md}\""
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -36,4 +38,3 @@
     "typescript": "^5.5.2"
   }
 }
-

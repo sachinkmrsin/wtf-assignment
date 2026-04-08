@@ -28,7 +28,7 @@ export async function detectAndSave(params: DetectAnomalyParams): Promise<Anomal
      SELECT ins.*, COALESCE(g.name, '') AS gym_name
      FROM ins
      LEFT JOIN gyms g ON g.id = ins.gym_id`,
-    [params.gymId, params.type, params.severity, params.message],
+    [params.gymId, params.type, params.severity, params.message]
   );
   const anomaly = rows[0];
   const payload: AnomalyPayload = {
@@ -50,7 +50,7 @@ export async function resolveAnomaly(id: string): Promise<boolean> {
   const { rows } = await pool.query(
     `UPDATE anomalies SET resolved = TRUE, resolved_at = NOW()
      WHERE id = $1 AND resolved = FALSE RETURNING *`,
-    [id],
+    [id]
   );
   if (!rows.length) return false;
   broadcastToAll('anomaly:resolved', {
@@ -66,7 +66,7 @@ export async function resolveAnomaly(id: string): Promise<boolean> {
 async function hasUnresolved(gymId: string, type: AnomalyType): Promise<boolean> {
   const { rows } = await pool.query(
     `SELECT 1 FROM anomalies WHERE gym_id = $1 AND type = $2 AND resolved = FALSE LIMIT 1`,
-    [gymId, type],
+    [gymId, type]
   );
   return rows.length > 0;
 }
@@ -76,7 +76,7 @@ async function resolveByType(gymId: string, type: AnomalyType): Promise<void> {
     `UPDATE anomalies SET resolved = TRUE, resolved_at = NOW()
      WHERE gym_id = $1 AND type = $2 AND resolved = FALSE
      RETURNING id, gym_id, resolved_at`,
-    [gymId, type],
+    [gymId, type]
   );
   for (const row of rows) {
     broadcastToAll('anomaly:resolved', {
@@ -96,7 +96,7 @@ export async function checkZeroCheckinsAnomaly(gymId: string): Promise<void> {
     `SELECT
        (SELECT COUNT(*) FROM checkins WHERE gym_id = $1 AND checked_out IS NULL) AS open_count,
        (SELECT MAX(checked_in) FROM checkins WHERE gym_id = $1)                  AS last_checkin`,
-    [gymId],
+    [gymId]
   );
 
   const openCount = parseInt(rows[0].open_count, 10);
@@ -130,7 +130,7 @@ export async function checkZeroCheckinsAnomaly(gymId: string): Promise<void> {
 export async function checkOccupancyAnomaly(gymId: string, capacity: number): Promise<void> {
   const { rows } = await pool.query(
     `SELECT COUNT(*) AS count FROM checkins WHERE gym_id = $1 AND checked_out IS NULL`,
-    [gymId],
+    [gymId]
   );
   const occupancy = parseInt(rows[0].count, 10);
   const pct = occupancy / capacity;
@@ -163,10 +163,10 @@ export async function checkRevenueAnomaly(gymId: string): Promise<void> {
        ), 0)                                                                                    AS last_week_revenue
      FROM payments
      WHERE gym_id = $1`,
-    [gymId],
+    [gymId]
   );
 
-  const today    = parseFloat(rows[0].today_revenue);
+  const today = parseFloat(rows[0].today_revenue);
   const lastWeek = parseFloat(rows[0].last_week_revenue);
 
   // >70% revenue drop vs same weekday last week

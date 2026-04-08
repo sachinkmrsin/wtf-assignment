@@ -6,7 +6,7 @@ export const VALID_DATE_RANGES = ['7d', '30d', '90d'] as const;
 export type DateRange = (typeof VALID_DATE_RANGES)[number];
 
 const DATE_RANGE_DAYS: Record<DateRange, number> = {
-  '7d':  7,
+  '7d': 7,
   '30d': 30,
   '90d': 90,
 };
@@ -52,4 +52,3 @@ export async function getGymAnalytics(gymId: string, dateRange: string) {
   const days = DATE_RANGE_DAYS[dateRange as DateRange];
   return gymRepo.findGymAnalytics(gymId, days);
 }
-

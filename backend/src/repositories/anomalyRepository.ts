@@ -47,7 +47,7 @@ export async function findActiveAnomalies(filters: AnomalyFilters): Promise<Anom
      JOIN gyms g ON g.id = a.gym_id
      WHERE ${conditions.join(' AND ')}
      ORDER BY a.detected_at DESC`,
-    params,
+    params
   );
   return rows;
 }
@@ -61,7 +61,7 @@ export async function findAnomalyById(id: string): Promise<AnomalyRecord | null>
      FROM anomalies a
      JOIN gyms g ON g.id = a.gym_id
      WHERE a.id = $1`,
-    [id],
+    [id]
   );
   return rows[0] ?? null;
 }
@@ -80,8 +80,7 @@ export async function dismissAnomalyById(id: string): Promise<AnomalyRecord | nu
        AND resolved  = FALSE
        AND dismissed = FALSE
      RETURNING *`,
-    [id],
+    [id]
   );
   return rows[0] ?? null;
 }
-

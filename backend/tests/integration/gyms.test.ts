@@ -9,7 +9,7 @@ jest.mock('../../src/db/pool', () => ({
 }));
 jest.mock('../../src/websocket', () => ({
   __esModule: true,
-  initSocketIO:  jest.fn(),
+  initSocketIO: jest.fn(),
   broadcastToGym: jest.fn(),
   broadcastToAll: jest.fn(),
 }));
@@ -35,13 +35,13 @@ beforeEach(() => jest.clearAllMocks());
 describe('GET /api/gyms', () => {
   it('returns 200 with the correct structure for all 10 seeded gyms', async () => {
     const gymRows = Array.from({ length: 10 }, (_, i) => ({
-      id:                `gym-uuid-${i + 1}`,
-      name:              `Gym ${i + 1}`,
-      city:              'Delhi',
-      capacity:          100,
-      status:            'active',
+      id: `gym-uuid-${i + 1}`,
+      name: `Gym ${i + 1}`,
+      city: 'Delhi',
+      capacity: 100,
+      status: 'active',
       current_occupancy: 0,
-      today_revenue:     0,
+      today_revenue: 0,
     }));
     mockQuery.mockResolvedValueOnce({ rows: gymRows });
 
@@ -51,12 +51,12 @@ describe('GET /api/gyms', () => {
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body).toHaveLength(10);
     expect(res.body[0]).toMatchObject({
-      id:                expect.any(String),
-      name:              expect.any(String),
-      city:              expect.any(String),
-      capacity:          expect.any(Number),
+      id: expect.any(String),
+      name: expect.any(String),
+      city: expect.any(String),
+      capacity: expect.any(Number),
       current_occupancy: expect.any(Number),
-      today_revenue:     expect.any(Number),
+      today_revenue: expect.any(Number),
     });
   });
 });
@@ -69,25 +69,27 @@ describe('GET /api/gyms/:id/live', () => {
 
     // findGymLiveSnapshot uses Promise.all with 5 parallel queries (consumed in declaration order)
     mockQuery
-      .mockResolvedValueOnce({ rows: [{ id: gymId, name: 'Iron Peak', city: 'Delhi', capacity: 100, status: 'active' }] })
-      .mockResolvedValueOnce({ rows: [{ count: 25 }] })          // live occupancy
-      .mockResolvedValueOnce({ rows: [{ total: 1500.00 }] })      // today's revenue
-      .mockResolvedValueOnce({ rows: [] })                         // recent events
-      .mockResolvedValueOnce({ rows: [] });                        // active anomalies
+      .mockResolvedValueOnce({
+        rows: [{ id: gymId, name: 'Iron Peak', city: 'Delhi', capacity: 100, status: 'active' }],
+      })
+      .mockResolvedValueOnce({ rows: [{ count: 25 }] }) // live occupancy
+      .mockResolvedValueOnce({ rows: [{ total: 1500.0 }] }) // today's revenue
+      .mockResolvedValueOnce({ rows: [] }) // recent events
+      .mockResolvedValueOnce({ rows: [] }); // active anomalies
 
     const res = await request(createApp()).get(`/api/gyms/${gymId}/live`);
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
-      id:                gymId,
-      name:              'Iron Peak',
-      city:              'Delhi',
-      capacity:          100,
-      status:            'active',
+      id: gymId,
+      name: 'Iron Peak',
+      city: 'Delhi',
+      capacity: 100,
+      status: 'active',
       current_occupancy: 25,
-      today_revenue:     1500,
-      recent_events:     expect.any(Array),
-      active_anomalies:  expect.any(Array),
+      today_revenue: 1500,
+      recent_events: expect.any(Array),
+      active_anomalies: expect.any(Array),
     });
   });
 

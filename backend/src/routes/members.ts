@@ -13,8 +13,14 @@ router.get('/', async (req: Request, res: Response) => {
     const params: unknown[] = [];
     let p = 1;
 
-    if (gym_id) { conditions.push(`gym_id = $${p++}`); params.push(gym_id); }
-    if (status)  { conditions.push(`status = $${p++}`); params.push(status); }
+    if (gym_id) {
+      conditions.push(`gym_id = $${p++}`);
+      params.push(gym_id);
+    }
+    if (status) {
+      conditions.push(`status = $${p++}`);
+      params.push(status);
+    }
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
     params.push(parseInt(limit as string), offset);
@@ -25,7 +31,7 @@ router.get('/', async (req: Request, res: Response) => {
        ${where}
        ORDER BY created_at DESC
        LIMIT $${p++} OFFSET $${p++}`,
-      params,
+      params
     );
     res.json(rows);
   } catch (err) {
@@ -57,7 +63,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { rows } = await pool.query(
       `SELECT id, gym_id, name, email, status, last_checkin_at, created_at
        FROM members WHERE id = $1`,
-      [req.params.id],
+      [req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: 'Member not found' });
     res.json(rows[0]);
@@ -68,4 +74,3 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 export default router;
-

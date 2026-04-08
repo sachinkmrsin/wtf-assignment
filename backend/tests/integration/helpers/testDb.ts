@@ -28,7 +28,8 @@ export function createTestDb(): { pool: Pool; teardown: () => void } {
 
   return {
     pool: instance,
-    teardown: () => { /* pg-mem is in-memory, no teardown needed */ },
+    teardown: () => {
+      /* pg-mem is in-memory, no teardown needed */
+    },
   };
 }
-

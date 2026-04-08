@@ -1,8 +1,5 @@
 import { Router } from 'express';
-import {
-  listAnomalies,
-  dismissAnomaly,
-} from '../controllers/anomalyController';
+import { listAnomalies, dismissAnomaly } from '../controllers/anomalyController';
 
 const router = Router();
 

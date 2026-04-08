@@ -9,7 +9,7 @@ jest.mock('../../src/db/pool', () => ({
 }));
 jest.mock('../../src/websocket', () => ({
   __esModule: true,
-  initSocketIO:   jest.fn(),
+  initSocketIO: jest.fn(),
   broadcastToGym: jest.fn(),
   broadcastToAll: jest.fn(),
 }));
@@ -46,8 +46,8 @@ describe('GET /api/analytics/cross-gym', () => {
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body[0]).toMatchObject({
-      gym_id:        expect.any(String),
-      gym_name:      expect.any(String),
+      gym_id: expect.any(String),
+      gym_name: expect.any(String),
       total_revenue: expect.any(Number),
     });
   });
@@ -82,4 +82,3 @@ describe('GET /api/analytics/revenue/:gymId', () => {
     expect(res.body.total).toBeCloseTo(4250.5);
   });
 });
-

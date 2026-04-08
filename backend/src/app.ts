@@ -9,7 +9,7 @@ import pool from './db/pool';
 
 import apiRouter from './routes';
 
-import { startSimulator }       from './jobs/simulator';
+import { startSimulator } from './jobs/simulator';
 import { startAnomalyDetector } from './jobs/anomalyDetector';
 
 dotenv.config();
@@ -55,4 +55,3 @@ bootstrap().catch((err) => {
 });
 
 export { app, httpServer };
-

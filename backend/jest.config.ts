@@ -6,16 +6,16 @@ const config: JestConfigWithTsJest = {
     'src/**/*.ts',
     '!src/db/migrations/**',
     '!src/db/seeds/**',
-    '!src/app.ts',        // bootstrap — not unit-testable without a real DB
+    '!src/app.ts', // bootstrap — not unit-testable without a real DB
   ],
-  coverageDirectory:  '<rootDir>/coverage',
-  coverageReporters:  ['text', 'lcov', 'html'],
+  coverageDirectory: '<rootDir>/coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
   coverageThreshold: {
     global: {
       statements: 40,
-      branches:   30,
-      functions:  40,
-      lines:      40,
+      branches: 30,
+      functions: 40,
+      lines: 40,
     },
   },
 
@@ -27,12 +27,15 @@ const config: JestConfigWithTsJest = {
       testEnvironment: 'node',
       testMatch: ['<rootDir>/tests/unit/**/*.test.ts'],
       transform: {
-        '^.+\\.tsx?$': ['ts-jest', {
-          tsconfig: {
-            strict: true,
-            esModuleInterop: true,
+        '^.+\\.tsx?$': [
+          'ts-jest',
+          {
+            tsconfig: {
+              strict: true,
+              esModuleInterop: true,
+            },
           },
-        }],
+        ],
       },
     },
     {
@@ -41,12 +44,15 @@ const config: JestConfigWithTsJest = {
       testEnvironment: 'node',
       testMatch: ['<rootDir>/tests/integration/**/*.test.ts'],
       transform: {
-        '^.+\\.tsx?$': ['ts-jest', {
-          tsconfig: {
-            strict: true,
-            esModuleInterop: true,
+        '^.+\\.tsx?$': [
+          'ts-jest',
+          {
+            tsconfig: {
+              strict: true,
+              esModuleInterop: true,
+            },
           },
-        }],
+        ],
       },
     },
   ],

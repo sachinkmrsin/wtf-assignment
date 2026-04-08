@@ -9,7 +9,7 @@ jest.mock('../../src/db/pool', () => ({
 }));
 jest.mock('../../src/websocket', () => ({
   __esModule: true,
-  initSocketIO:   jest.fn(),
+  initSocketIO: jest.fn(),
   broadcastToGym: jest.fn(),
   broadcastToAll: jest.fn(),
 }));
@@ -36,8 +36,24 @@ describe('GET /api/members', () => {
   it('returns 200 with a list of members', async () => {
     mockQuery.mockResolvedValueOnce({
       rows: [
-        { id: 'm-1', gym_id: 'gym-uuid-1', name: 'Alice', email: 'alice@test.com', status: 'active', last_checkin_at: null, created_at: new Date().toISOString() },
-        { id: 'm-2', gym_id: 'gym-uuid-1', name: 'Bob',   email: 'bob@test.com',   status: 'active', last_checkin_at: null, created_at: new Date().toISOString() },
+        {
+          id: 'm-1',
+          gym_id: 'gym-uuid-1',
+          name: 'Alice',
+          email: 'alice@test.com',
+          status: 'active',
+          last_checkin_at: null,
+          created_at: new Date().toISOString(),
+        },
+        {
+          id: 'm-2',
+          gym_id: 'gym-uuid-1',
+          name: 'Bob',
+          email: 'bob@test.com',
+          status: 'active',
+          last_checkin_at: null,
+          created_at: new Date().toISOString(),
+        },
       ],
     });
 
@@ -47,8 +63,8 @@ describe('GET /api/members', () => {
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body).toHaveLength(2);
     expect(res.body[0]).toMatchObject({
-      id:     expect.any(String),
-      name:   expect.any(String),
+      id: expect.any(String),
+      name: expect.any(String),
       status: expect.any(String),
     });
   });
@@ -59,12 +75,18 @@ describe('GET /api/members', () => {
 describe('GET /api/members/churn-risk', () => {
   it('returns only active members whose last check-in was more than 45 days ago', async () => {
     const sixtyDaysAgo = new Date(Date.now() - 60 * 86_400_000).toISOString();
-    const tenDaysAgo   = new Date(Date.now() - 10 * 86_400_000).toISOString();
+    const tenDaysAgo = new Date(Date.now() - 10 * 86_400_000).toISOString();
 
     // The query filters on the DB side; we return the already-filtered rows
     mockQuery.mockResolvedValueOnce({
       rows: [
-        { id: 'm-1', name: 'Alice', last_checkin_at: sixtyDaysAgo, gym_id: 'gym-uuid-1', email: 'alice@test.com' },
+        {
+          id: 'm-1',
+          name: 'Alice',
+          last_checkin_at: sixtyDaysAgo,
+          gym_id: 'gym-uuid-1',
+          email: 'alice@test.com',
+        },
         // Bob (10 days ago) is filtered out by the DB query — not returned
       ],
     });
@@ -96,13 +118,13 @@ describe('GET /api/members/:id', () => {
 
   it('returns 200 with member data for an existing member', async () => {
     const memberRow = {
-      id:             'm-1',
-      gym_id:         'gym-uuid-1',
-      name:           'Alice',
-      email:          'alice@test.com',
-      status:         'active',
+      id: 'm-1',
+      gym_id: 'gym-uuid-1',
+      name: 'Alice',
+      email: 'alice@test.com',
+      status: 'active',
       last_checkin_at: new Date().toISOString(),
-      created_at:     new Date().toISOString(),
+      created_at: new Date().toISOString(),
     };
     mockQuery.mockResolvedValueOnce({ rows: [memberRow] });
 
@@ -112,4 +134,3 @@ describe('GET /api/members/:id', () => {
     expect(res.body).toMatchObject({ id: 'm-1', name: 'Alice', status: 'active' });
   });
 });
-

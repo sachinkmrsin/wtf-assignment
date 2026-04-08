@@ -1,0 +1,36 @@
+# Build outputs
+dist/
+build/
+coverage/
+
+# Dependencies
+node_modules/
+
+# Lock files
+pnpm-lock.yaml
+
+# Environment files
+.env
+.env.*
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Database / SQL migrations & seeds (preserve formatting)
+backend/src/db/migrations/
+backend/src/db/seeds/
+
+# Static assets
+public/
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.ico
+
+# Generated files
+*.html
+lcov-report/
+lcov.info
+

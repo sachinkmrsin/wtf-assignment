@@ -16,7 +16,7 @@ export async function listAnomalies(req: Request, res: Response): Promise<void> 
 
   try {
     const anomalies = await anomalyQueryService.getActiveAnomalies({
-      gym_id:   gym_id   ? String(gym_id)   : undefined,
+      gym_id: gym_id ? String(gym_id) : undefined,
       severity: severity ? String(severity) : undefined,
     });
     res.json(anomalies);
@@ -51,4 +51,3 @@ export async function dismissAnomaly(req: Request, res: Response): Promise<void>
     res.status(500).json({ error: 'Internal server error' });
   }
 }
-

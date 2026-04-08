@@ -9,17 +9,17 @@ export type SimulatorState = 'running' | 'paused';
 // ── Speed → tick interval mapping ────────────────────────────────────────────
 
 const SPEED_INTERVALS: Record<SimulatorSpeed, number> = {
-  1:  3_000,  // 1× — one tick every 3 s
-  5:    600,  // 5× — one tick every 600 ms
-  10:   300,  // 10× — one tick every 300 ms
+  1: 3_000, // 1× — one tick every 3 s
+  5: 600, // 5× — one tick every 600 ms
+  10: 300, // 10× — one tick every 300 ms
 };
 
 // ── Internal state ────────────────────────────────────────────────────────────
 
-let timer:        NodeJS.Timeout | null = null;
-let currentSpeed: SimulatorSpeed        = 1;
-let state:        SimulatorState        = 'paused';
-let running:      boolean               = false; // guard against overlapping ticks
+let timer: NodeJS.Timeout | null = null;
+let currentSpeed: SimulatorSpeed = 1;
+let state: SimulatorState = 'paused';
+let running: boolean = false; // guard against overlapping ticks
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
@@ -31,7 +31,7 @@ export function startSimulator(speed: SimulatorSpeed = 1): void {
   stopSimulator(); // clear any running interval first
 
   currentSpeed = speed;
-  state        = 'running';
+  state = 'running';
 
   const interval = SPEED_INTERVALS[speed];
   console.log(`[simulator] Starting at ${speed}× speed (tick every ${interval}ms)`);
@@ -73,7 +73,7 @@ export function stopSimulator(): void {
 export async function resetSimulator(): Promise<void> {
   stopSimulator();
   const { rowCount } = await pool.query(
-    `UPDATE checkins SET checked_out = NOW() WHERE checked_out IS NULL`,
+    `UPDATE checkins SET checked_out = NOW() WHERE checked_out IS NULL`
   );
   console.log(`[simulator] Reset: closed ${rowCount ?? 0} open check-in(s)`);
 }

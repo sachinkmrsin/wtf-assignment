@@ -21,4 +21,3 @@ router.post('/reset', resetSimulation);
 router.get('/status', getStatus);
 
 export default router;
-

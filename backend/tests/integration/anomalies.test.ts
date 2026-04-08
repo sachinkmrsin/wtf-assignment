@@ -9,7 +9,7 @@ jest.mock('../../src/db/pool', () => ({
 }));
 jest.mock('../../src/websocket', () => ({
   __esModule: true,
-  initSocketIO:   jest.fn(),
+  initSocketIO: jest.fn(),
   broadcastToGym: jest.fn(),
   broadcastToAll: jest.fn(),
 }));
@@ -44,14 +44,14 @@ describe('GET /api/anomalies', () => {
 
   it('returns 200 with active anomaly records', async () => {
     const anomalyRow = {
-      id:          'anomaly-uuid-1',
-      gym_id:      'gym-uuid-1',
-      gym_name:    'Iron Peak',
-      type:        'capacity_breach',
-      severity:    'critical',
-      message:     'Gym at 95% capacity',
-      resolved:    false,
-      dismissed:   false,
+      id: 'anomaly-uuid-1',
+      gym_id: 'gym-uuid-1',
+      gym_name: 'Iron Peak',
+      type: 'capacity_breach',
+      severity: 'critical',
+      message: 'Gym at 95% capacity',
+      resolved: false,
+      dismissed: false,
       detected_at: new Date().toISOString(),
       resolved_at: null,
     };
@@ -62,9 +62,9 @@ describe('GET /api/anomalies', () => {
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(1);
     expect(res.body[0]).toMatchObject({
-      id:       'anomaly-uuid-1',
+      id: 'anomaly-uuid-1',
       severity: 'critical',
-      type:     'capacity_breach',
+      type: 'capacity_breach',
     });
   });
 
@@ -84,18 +84,20 @@ describe('PATCH /api/anomalies/:id/dismiss', () => {
   it('returns 403 when the anomaly severity is critical (cannot be dismissed)', async () => {
     // findAnomalyById → returns a critical anomaly
     mockQuery.mockResolvedValueOnce({
-      rows: [{
-        id:          'anomaly-uuid-1',
-        gym_id:      'gym-uuid-1',
-        gym_name:    'Iron Peak',
-        type:        'capacity_breach',
-        severity:    'critical',
-        message:     'Gym at 95% capacity',
-        resolved:    false,
-        dismissed:   false,
-        detected_at: new Date().toISOString(),
-        resolved_at: null,
-      }],
+      rows: [
+        {
+          id: 'anomaly-uuid-1',
+          gym_id: 'gym-uuid-1',
+          gym_name: 'Iron Peak',
+          type: 'capacity_breach',
+          severity: 'critical',
+          message: 'Gym at 95% capacity',
+          resolved: false,
+          dismissed: false,
+          detected_at: new Date().toISOString(),
+          resolved_at: null,
+        },
+      ],
     });
 
     const res = await request(createApp()).patch('/api/anomalies/anomaly-uuid-1/dismiss');
@@ -115,14 +117,14 @@ describe('PATCH /api/anomalies/:id/dismiss', () => {
 
   it('returns 200 and the updated record when a warning anomaly is successfully dismissed', async () => {
     const warningRow = {
-      id:          'anomaly-uuid-2',
-      gym_id:      'gym-uuid-1',
-      gym_name:    'Iron Peak',
-      type:        'zero_checkins',
-      severity:    'warning',
-      message:     'No active check-ins',
-      resolved:    false,
-      dismissed:   false,
+      id: 'anomaly-uuid-2',
+      gym_id: 'gym-uuid-1',
+      gym_name: 'Iron Peak',
+      type: 'zero_checkins',
+      severity: 'warning',
+      message: 'No active check-ins',
+      resolved: false,
+      dismissed: false,
       detected_at: new Date().toISOString(),
       resolved_at: null,
     };

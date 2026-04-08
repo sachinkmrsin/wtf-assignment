@@ -24,9 +24,9 @@ import {
 import pool from '../../src/db/pool';
 import * as ws from '../../src/websocket';
 
-const mockQuery     = pool.query        as jest.Mock;
-const mockBcastGym  = ws.broadcastToGym as jest.Mock;
-const mockBcastAll  = ws.broadcastToAll as jest.Mock;
+const mockQuery = pool.query as jest.Mock;
+const mockBcastGym = ws.broadcastToGym as jest.Mock;
+const mockBcastAll = ws.broadcastToAll as jest.Mock;
 
 // ── Setup ─────────────────────────────────────────────────────────────────────
 
@@ -35,11 +35,11 @@ beforeEach(() => jest.clearAllMocks());
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const fakeRow = (overrides: Record<string, unknown> = {}) => ({
-  id:          'anomaly-uuid-1',
-  gym_id:      'gym-uuid-1',
-  type:        'zero_checkins',
-  severity:    'warning',
-  message:     'test message',
+  id: 'anomaly-uuid-1',
+  gym_id: 'gym-uuid-1',
+  type: 'zero_checkins',
+  severity: 'warning',
+  message: 'test message',
   detected_at: new Date().toISOString(),
   ...overrides,
 });
@@ -52,7 +52,7 @@ describe('checkZeroCheckinsAnomaly', () => {
 
     mockQuery
       .mockResolvedValueOnce({ rows: [{ open_count: '0', last_checkin: threeHoursAgo }] })
-      .mockResolvedValueOnce({ rows: [] })                                   // hasUnresolved → none
+      .mockResolvedValueOnce({ rows: [] }) // hasUnresolved → none
       .mockResolvedValueOnce({ rows: [fakeRow({ type: 'zero_checkins' })] }); // detectAndSave INSERT
 
     await checkZeroCheckinsAnomaly('gym-uuid-1');
@@ -61,21 +61,19 @@ describe('checkZeroCheckinsAnomaly', () => {
     expect(mockBcastGym).toHaveBeenCalledWith(
       'gym-uuid-1',
       'anomaly:detected',
-      expect.objectContaining({ type: 'zero_checkins', severity: 'warning' }),
+      expect.objectContaining({ type: 'zero_checkins', severity: 'warning' })
     );
   });
 
   it('fires when there has NEVER been a check-in (last_checkin is null)', async () => {
     mockQuery
       .mockResolvedValueOnce({ rows: [{ open_count: '0', last_checkin: null }] })
-      .mockResolvedValueOnce({ rows: [] })                                   // hasUnresolved → none
+      .mockResolvedValueOnce({ rows: [] }) // hasUnresolved → none
       .mockResolvedValueOnce({ rows: [fakeRow({ type: 'zero_checkins' })] }); // detectAndSave
 
     await checkZeroCheckinsAnomaly('gym-uuid-1');
 
-    expect(mockBcastGym).toHaveBeenCalledWith(
-      'gym-uuid-1', 'anomaly:detected', expect.any(Object),
-    );
+    expect(mockBcastGym).toHaveBeenCalledWith('gym-uuid-1', 'anomaly:detected', expect.any(Object));
   });
 
   it('does NOT fire when the last check-in was less than 2 hours ago', async () => {
@@ -105,14 +103,16 @@ describe('checkZeroCheckinsAnomaly', () => {
 
   it('auto-resolves the anomaly when activity resumes (open_count > 0)', async () => {
     mockQuery
-      .mockResolvedValueOnce({ rows: [{ open_count: '5', last_checkin: new Date().toISOString() }] })
+      .mockResolvedValueOnce({
+        rows: [{ open_count: '5', last_checkin: new Date().toISOString() }],
+      })
       .mockResolvedValueOnce({ rows: [{ id: 'anomaly-uuid-1', gym_id: 'gym-uuid-1' }] }); // resolveByType
 
     await checkZeroCheckinsAnomaly('gym-uuid-1');
 
     expect(mockBcastAll).toHaveBeenCalledWith(
       'anomaly:resolved',
-      expect.objectContaining({ id: 'anomaly-uuid-1' }),
+      expect.objectContaining({ id: 'anomaly-uuid-1' })
     );
   });
 });
@@ -122,16 +122,18 @@ describe('checkZeroCheckinsAnomaly', () => {
 describe('checkOccupancyAnomaly', () => {
   it('fires a critical anomaly when occupancy exceeds 90% of capacity', async () => {
     mockQuery
-      .mockResolvedValueOnce({ rows: [{ count: '95' }] })  // 95/100 = 95% > 90%
-      .mockResolvedValueOnce({ rows: [] })                  // hasUnresolved → none
-      .mockResolvedValueOnce({ rows: [fakeRow({ type: 'capacity_breach', severity: 'critical' })] });
+      .mockResolvedValueOnce({ rows: [{ count: '95' }] }) // 95/100 = 95% > 90%
+      .mockResolvedValueOnce({ rows: [] }) // hasUnresolved → none
+      .mockResolvedValueOnce({
+        rows: [fakeRow({ type: 'capacity_breach', severity: 'critical' })],
+      });
 
     await checkOccupancyAnomaly('gym-uuid-1', 100);
 
     expect(mockBcastGym).toHaveBeenCalledWith(
       'gym-uuid-1',
       'anomaly:detected',
-      expect.objectContaining({ type: 'capacity_breach', severity: 'critical' }),
+      expect.objectContaining({ type: 'capacity_breach', severity: 'critical' })
     );
   });
 
@@ -146,7 +148,7 @@ describe('checkOccupancyAnomaly', () => {
 
   it('does NOT fire a duplicate when a capacity_breach is already unresolved', async () => {
     mockQuery
-      .mockResolvedValueOnce({ rows: [{ count: '97' }] })  // 97% > 90%
+      .mockResolvedValueOnce({ rows: [{ count: '97' }] }) // 97% > 90%
       .mockResolvedValueOnce({ rows: [{ '?column?': 1 }] }); // hasUnresolved → exists
 
     await checkOccupancyAnomaly('gym-uuid-1', 100);
@@ -157,14 +159,14 @@ describe('checkOccupancyAnomaly', () => {
 
   it('auto-resolves capacity_breach when occupancy drops below 85%', async () => {
     mockQuery
-      .mockResolvedValueOnce({ rows: [{ count: '80' }] })  // 80% < 85% → auto-resolve
+      .mockResolvedValueOnce({ rows: [{ count: '80' }] }) // 80% < 85% → auto-resolve
       .mockResolvedValueOnce({ rows: [{ id: 'anomaly-uuid-1', gym_id: 'gym-uuid-1' }] });
 
     await checkOccupancyAnomaly('gym-uuid-1', 100);
 
     expect(mockBcastAll).toHaveBeenCalledWith(
       'anomaly:resolved',
-      expect.objectContaining({ id: 'anomaly-uuid-1' }),
+      expect.objectContaining({ id: 'anomaly-uuid-1' })
     );
   });
 });
@@ -176,7 +178,7 @@ describe('checkRevenueAnomaly', () => {
     // 50 < 500 × 0.3 = 150 → revenue drop > 70%
     mockQuery
       .mockResolvedValueOnce({ rows: [{ today_revenue: '50', last_week_revenue: '500' }] })
-      .mockResolvedValueOnce({ rows: [] })                                    // hasUnresolved → none
+      .mockResolvedValueOnce({ rows: [] }) // hasUnresolved → none
       .mockResolvedValueOnce({ rows: [fakeRow({ type: 'revenue_drop' })] }); // detectAndSave
 
     await checkRevenueAnomaly('gym-uuid-1');
@@ -184,7 +186,7 @@ describe('checkRevenueAnomaly', () => {
     expect(mockBcastGym).toHaveBeenCalledWith(
       'gym-uuid-1',
       'anomaly:detected',
-      expect.objectContaining({ type: 'revenue_drop' }),
+      expect.objectContaining({ type: 'revenue_drop' })
     );
   });
 
@@ -227,10 +229,10 @@ describe('detectAndSave', () => {
     mockQuery.mockResolvedValueOnce({ rows: [row] });
 
     const result = await detectAndSave({
-      gymId:    'gym-uuid-1',
-      type:     'capacity_breach',
+      gymId: 'gym-uuid-1',
+      type: 'capacity_breach',
       severity: 'critical',
-      message:  'Gym at 95% capacity (95/100)',
+      message: 'Gym at 95% capacity (95/100)',
     });
 
     expect(result.id).toBe(row.id);
@@ -238,7 +240,7 @@ describe('detectAndSave', () => {
     expect(mockBcastGym).toHaveBeenCalledWith(
       'gym-uuid-1',
       'anomaly:detected',
-      expect.objectContaining({ type: 'capacity_breach', severity: 'critical' }),
+      expect.objectContaining({ type: 'capacity_breach', severity: 'critical' })
     );
   });
 });
@@ -250,10 +252,10 @@ describe('resolveAnomaly', () => {
     const ok = await resolveAnomaly('anomaly-uuid-1');
 
     expect(ok).toBe(true);
-    expect(mockBcastAll).toHaveBeenCalledWith(
-      'anomaly:resolved',
-      { id: 'anomaly-uuid-1', gymId: 'gym-uuid-1' },
-    );
+    expect(mockBcastAll).toHaveBeenCalledWith('anomaly:resolved', {
+      id: 'anomaly-uuid-1',
+      gymId: 'gym-uuid-1',
+    });
   });
 
   it('returns false and does NOT broadcast when the anomaly is not found', async () => {
@@ -265,4 +267,3 @@ describe('resolveAnomaly', () => {
     expect(mockBcastAll).not.toHaveBeenCalled();
   });
 });
-

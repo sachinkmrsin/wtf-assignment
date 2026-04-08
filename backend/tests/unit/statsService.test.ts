@@ -7,7 +7,12 @@ jest.mock('../../src/db/pool', () => ({
   default: { query: jest.fn() },
 }));
 
-import { getGymStats, getAllGymIds, getGymCapacity, refreshHeatmap } from '../../src/services/statsService';
+import {
+  getGymStats,
+  getAllGymIds,
+  getGymCapacity,
+  refreshHeatmap,
+} from '../../src/services/statsService';
 import pool from '../../src/db/pool';
 
 const mockQuery = pool.query as jest.Mock;
@@ -17,16 +22,18 @@ beforeEach(() => jest.clearAllMocks());
 describe('getGymStats', () => {
   it('returns correctly parsed stats for a valid gym', async () => {
     mockQuery.mockResolvedValueOnce({
-      rows: [{
-        gym_id:          'gym-uuid-1',
-        gym_name:        'Iron Peak',
-        capacity:        '100',
-        live_occupancy:  '23',
-        today_revenue:   '1234.56',
-        today_checkins:  '45',
-        weekly_checkins: '210',
-        active_members:  '480',
-      }],
+      rows: [
+        {
+          gym_id: 'gym-uuid-1',
+          gym_name: 'Iron Peak',
+          capacity: '100',
+          live_occupancy: '23',
+          today_revenue: '1234.56',
+          today_checkins: '45',
+          weekly_checkins: '210',
+          active_members: '480',
+        },
+      ],
     });
 
     const stats = await getGymStats('gym-uuid-1');
@@ -83,7 +90,7 @@ describe('refreshHeatmap', () => {
     await refreshHeatmap();
 
     expect(mockQuery).toHaveBeenCalledWith(
-      expect.stringContaining('REFRESH MATERIALIZED VIEW CONCURRENTLY gym_hourly_stats'),
+      expect.stringContaining('REFRESH MATERIALIZED VIEW CONCURRENTLY gym_hourly_stats')
     );
   });
 });

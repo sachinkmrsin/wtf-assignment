@@ -33,8 +33,8 @@ export async function getLiveSnapshot(req: Request, res: Response): Promise<void
 // ── GET /api/gyms/:id/analytics ───────────────────────────────────────────────
 
 export async function getAnalytics(req: Request, res: Response): Promise<void> {
-  const { id }       = req.params;
-  const dateRange    = (req.query.dateRange as string | undefined) ?? '30d';
+  const { id } = req.params;
+  const dateRange = (req.query.dateRange as string | undefined) ?? '30d';
 
   // Validate dateRange query param
   if (!['7d', '30d', '90d'].includes(dateRange)) {
@@ -61,4 +61,3 @@ export async function getAnalytics(req: Request, res: Response): Promise<void> {
     res.status(500).json({ error: 'Internal server error' });
   }
 }
-

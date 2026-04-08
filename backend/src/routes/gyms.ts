@@ -1,9 +1,5 @@
 import { Router } from 'express';
-import {
-  listGyms,
-  getLiveSnapshot,
-  getAnalytics,
-} from '../controllers/gymController';
+import { listGyms, getLiveSnapshot, getAnalytics } from '../controllers/gymController';
 
 const router = Router();
 

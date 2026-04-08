@@ -19,7 +19,7 @@ export function getActiveAnomalies(filters: anomalyRepo.AnomalyFilters) {
  *  - { anomaly: <record>, forbidden: false } — success (HTTP 200)
  */
 export async function dismissAnomaly(
-  id: string,
+  id: string
 ): Promise<{ anomaly: anomalyRepo.AnomalyRecord | null; forbidden: boolean }> {
   // Load anomaly first so we can check its severity
   const existing = await anomalyRepo.findAnomalyById(id);
@@ -34,4 +34,3 @@ export async function dismissAnomaly(
   }
   return { anomaly: updated, forbidden: false };
 }
-

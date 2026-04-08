@@ -22,7 +22,7 @@ router.get('/occupancy/:gymId', async (req: Request, res: Response) => {
       `SELECT COUNT(*) AS count
        FROM checkins
        WHERE gym_id = $1 AND checked_out IS NULL`,
-      [req.params.gymId],
+      [req.params.gymId]
     );
     res.json({ gymId: req.params.gymId, count: parseInt(rows[0].count) });
   } catch (err) {
@@ -38,7 +38,7 @@ router.get('/revenue/:gymId', async (req: Request, res: Response) => {
       `SELECT COALESCE(SUM(amount), 0) AS total
        FROM payments
        WHERE gym_id = $1 AND paid_at >= CURRENT_DATE`,
-      [req.params.gymId],
+      [req.params.gymId]
     );
     res.json({ gymId: req.params.gymId, total: parseFloat(rows[0].total) });
   } catch (err) {
@@ -58,7 +58,7 @@ router.get('/heatmap/:gymId', async (req: Request, res: Response) => {
        FROM gym_hourly_stats
        WHERE gym_id = $1
        ORDER BY day_of_week, hour_of_day`,
-      [req.params.gymId],
+      [req.params.gymId]
     );
     res.json(rows);
   } catch (err) {
@@ -80,7 +80,7 @@ router.get('/checkins/:gymId', async (req: Request, res: Response) => {
          AND checked_in >= NOW() - ($2 || ' days')::INTERVAL
        GROUP BY day
        ORDER BY day`,
-      [req.params.gymId, days],
+      [req.params.gymId, days]
     );
     res.json(rows);
   } catch (err) {

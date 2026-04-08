@@ -49,4 +49,3 @@ export async function resetSimulation(_req: Request, res: Response): Promise<voi
 export function getStatus(_req: Request, res: Response): void {
   res.json(getSimulatorStatus());
 }
-

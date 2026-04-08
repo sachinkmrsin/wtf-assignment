@@ -28,7 +28,7 @@ export async function getGymStats(gymId: string): Promise<GymStats | null> {
      LEFT JOIN members  m ON m.gym_id = g.id
      WHERE g.id = $1
      GROUP BY g.id`,
-    [gymId],
+    [gymId]
   );
   if (!rows.length) return null;
   const r = rows[0];
@@ -50,10 +50,7 @@ export async function getAllGymIds(): Promise<string[]> {
 }
 
 export async function getGymCapacity(gymId: string): Promise<number> {
-  const { rows } = await pool.query(
-    `SELECT capacity FROM gyms WHERE id = $1`,
-    [gymId],
-  );
+  const { rows } = await pool.query(`SELECT capacity FROM gyms WHERE id = $1`, [gymId]);
   return rows[0]?.capacity ?? 100;
 }
 
@@ -61,5 +58,3 @@ export async function refreshHeatmap(): Promise<void> {
   await pool.query(`REFRESH MATERIALIZED VIEW CONCURRENTLY gym_hourly_stats`);
   console.log('[stats] gym_hourly_stats refreshed');
 }
-
-
