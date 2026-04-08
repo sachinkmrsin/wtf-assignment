@@ -77,6 +77,16 @@ export async function simulateCheckin(gymId: string): Promise<void> {
     capacity,
     timestamp: now,
   });
+  // Broadcast updated stats so weeklyCheckins KPI stays current
+  const stats = await getGymStats(gymId);
+  if (stats) {
+    broadcastToGym(gymId, 'stats:update', {
+      gymId,
+      dailyRevenue: stats.todayRevenue,
+      weeklyCheckins: stats.weeklyCheckins,
+      timestamp: now,
+    });
+  }
 }
 
 export async function simulateCheckout(gymId: string): Promise<void> {
@@ -119,6 +129,17 @@ export async function simulateCheckout(gymId: string): Promise<void> {
     capacity,
     timestamp: now,
   });
+
+  // Broadcast updated stats so weeklyCheckins KPI stays current
+  const stats = await getGymStats(gymId);
+  if (stats) {
+    broadcastToGym(gymId, 'stats:update', {
+      gymId,
+      dailyRevenue: stats.todayRevenue,
+      weeklyCheckins: stats.weeklyCheckins,
+      timestamp: now,
+    });
+  }
 }
 
 export async function simulatePayment(gymId: string): Promise<void> {

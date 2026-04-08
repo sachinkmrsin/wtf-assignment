@@ -5,9 +5,9 @@ import pool from '../db/pool';
 export interface GymListItem {
   id: string;
   name: string;
-  city: string;
+  location: string;
   capacity: number;
-  current_occupancy: number;
+  live_occupancy: number;
   today_revenue: number;
   status: string;
 }
@@ -79,15 +79,20 @@ export async function findAllGyms(): Promise<GymListItem[]> {
     SELECT
       g.id,
       g.name,
-      g.city,
+      g.city AS location,
       g.capacity,
       g.status,
-      COUNT(c.id) FILTER (WHERE c.checked_out IS NULL)::INT             AS current_occupancy,
-      COALESCE(SUM(p.amount) FILTER (WHERE p.paid_at >= CURRENT_DATE), 0)::FLOAT AS today_revenue
+      COALESCE((
+        SELECT COUNT(*)::INT
+        FROM checkins c
+        WHERE c.gym_id = g.id AND c.checked_out IS NULL
+      ), 0) AS live_occupancy,
+      COALESCE((
+        SELECT SUM(p.amount)::FLOAT
+        FROM payments p
+        WHERE p.gym_id = g.id AND p.paid_at >= CURRENT_DATE
+      ), 0) AS today_revenue
     FROM gyms g
-    LEFT JOIN checkins c ON c.gym_id = g.id
-    LEFT JOIN payments p ON p.gym_id = g.id
-    GROUP BY g.id
     ORDER BY g.name
   `);
   return rows;
@@ -102,16 +107,21 @@ export async function findGymById(id: string): Promise<GymListItem | null> {
     SELECT
       g.id,
       g.name,
-      g.city,
+      g.city AS location,
       g.capacity,
       g.status,
-      COUNT(c.id) FILTER (WHERE c.checked_out IS NULL)::INT             AS current_occupancy,
-      COALESCE(SUM(p.amount) FILTER (WHERE p.paid_at >= CURRENT_DATE), 0)::FLOAT AS today_revenue
+      COALESCE((
+        SELECT COUNT(*)::INT
+        FROM checkins c
+        WHERE c.gym_id = g.id AND c.checked_out IS NULL
+      ), 0) AS live_occupancy,
+      COALESCE((
+        SELECT SUM(p.amount)::FLOAT
+        FROM payments p
+        WHERE p.gym_id = g.id AND p.paid_at >= CURRENT_DATE
+      ), 0) AS today_revenue
     FROM gyms g
-    LEFT JOIN checkins c ON c.gym_id = g.id
-    LEFT JOIN payments p ON p.gym_id = g.id
     WHERE g.id = $1
-    GROUP BY g.id
     `,
     [id],
   );

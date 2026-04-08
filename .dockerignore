@@ -1,0 +1,40 @@
+# ── Version control ───────────────────────────────────────────────────────────
+.git/
+.gitignore
+
+# ── Dependencies (installed inside the image) ─────────────────────────────────
+node_modules/
+*/node_modules/
+
+# ── Build artifacts ───────────────────────────────────────────────────────────
+backend/dist/
+frontend/dist/
+
+# ── Environment & secrets ─────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── Test & coverage ───────────────────────────────────────────────────────────
+coverage/
+test-results/
+playwright-report/
+blob-report/
+
+# ── Editor & OS ───────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ── TypeScript ────────────────────────────────────────────────────────────────
+*.tsbuildinfo
+
+# ── Docs & benchmarks ─────────────────────────────────────────────────────────
+README.md
+benchmarks/
+

@@ -1,0 +1,16 @@
+{
+  "name": "wtf-livepulse",
+  "version": "1.0.0",
+  "description": "Real-time gym management platform with live occupancy, analytics, and anomaly detection",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "seed": "pnpm --filter backend seed"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=10.0.0"
+  }
+}

@@ -8,6 +8,11 @@ const router = Router();
 // NOTE: must be defined BEFORE any param-based routes to avoid route conflicts
 router.get('/cross-gym', crossGymRevenue);
 
+// GET /api/analytics/revenue/comparison — alias used by the frontend
+// NOTE: must be defined BEFORE /revenue/:gymId to prevent "comparison" being
+//       captured as a gymId param and sent to PostgreSQL as a UUID
+router.get('/revenue/comparison', crossGymRevenue);
+
 // ── Legacy routes (kept for backward compatibility) ───────────────────────────
 
 // GET /api/analytics/occupancy/:gymId
