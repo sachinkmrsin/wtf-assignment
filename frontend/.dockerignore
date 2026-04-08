@@ -4,11 +4,10 @@
 
 # ── Dependencies (installed inside the image) ─────────────────────────────────
 node_modules/
-*/node_modules/
 
 # ── Build artifacts ───────────────────────────────────────────────────────────
-backend/dist/
-frontend/dist/
+dist/
+dist-ssr/
 
 # ── Environment & secrets ─────────────────────────────────────────────────────
 .env
@@ -20,10 +19,14 @@ logs/
 *.log
 
 # ── Test & coverage ───────────────────────────────────────────────────────────
+tests/
 coverage/
 test-results/
 playwright-report/
 blob-report/
+
+# ── TypeScript ────────────────────────────────────────────────────────────────
+*.tsbuildinfo
 
 # ── Editor & OS ───────────────────────────────────────────────────────────────
 .vscode/
@@ -31,10 +34,6 @@ blob-report/
 .DS_Store
 Thumbs.db
 
-# ── TypeScript ────────────────────────────────────────────────────────────────
-*.tsbuildinfo
-
-# ── Docs & benchmarks ─────────────────────────────────────────────────────────
+# ── Docs ──────────────────────────────────────────────────────────────────────
 README.md
-benchmarks/
 
