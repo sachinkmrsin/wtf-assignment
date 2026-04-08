@@ -96,8 +96,7 @@ CREATE TABLE IF NOT EXISTS payments (
 CREATE INDEX IF NOT EXISTS idx_payments_gym_date
   ON payments (gym_id, paid_at DESC);
 
--- Supporting index for cross-gym revenue comparison
-CREATE INDEX IF NOT EXISTS idx_payments_date ON payments (paid_at DESC);
+
 
 -- ── Anomalies ─────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS anomalies (

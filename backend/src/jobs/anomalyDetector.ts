@@ -5,8 +5,8 @@ import {
   checkRevenueAnomaly,
 } from '../services/anomalyService';
 
-const ANOMALY_CHECK_INTERVAL_MS  = 60_000;       // every 60 seconds
-const HEATMAP_REFRESH_INTERVAL_MS = 15 * 60_000; // every 15 minutes
+const ANOMALY_CHECK_INTERVAL_MS   = 60_000;       // every 60 seconds
+const HEATMAP_REFRESH_INTERVAL_MS = 15 * 60_000;  // every 15 minutes
 
 let anomalyTimer: NodeJS.Timeout | null = null;
 let heatmapTimer: NodeJS.Timeout | null = null;

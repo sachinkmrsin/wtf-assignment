@@ -62,3 +62,4 @@ export async function refreshHeatmap(): Promise<void> {
   console.log('[stats] gym_hourly_stats refreshed');
 }
 
+

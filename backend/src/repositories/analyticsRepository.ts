@@ -14,9 +14,13 @@ export interface CrossGymRevenueEntry {
 /**
  * Cross-gym revenue for the last 30 days, sorted descending, with dense rank.
  *
- * Performance target: < 2ms.
- * Uses idx_payments_date_covering (paid_at DESC, gym_id) INCLUDE (amount) —
- * an index-only scan; zero heap fetches required.
+ * Performance target: < 2 ms.
+ *
+ * Index path: idx_payments_date (paid_at DESC, gym_id) INCLUDE (amount)
+ *   • Range scan on paid_at filters the 30-day window from the index alone.
+ *   • gym_id and amount are both in the index leaf — zero heap fetches.
+ *   • JOIN with gyms is trivial (tiny table, always in shared_buffers).
+ * Result: true index-only scan; no heap access on payments required.
  */
 export async function getCrossGymRevenue(days: number = 30): Promise<CrossGymRevenueEntry[]> {
   const { rows } = await pool.query(
@@ -34,4 +38,3 @@ export async function getCrossGymRevenue(days: number = 30): Promise<CrossGymRev
   );
   return rows;
 }
-

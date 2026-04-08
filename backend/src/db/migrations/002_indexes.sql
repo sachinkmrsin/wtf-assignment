@@ -32,24 +32,18 @@ CREATE INDEX IF NOT EXISTS idx_payments_member_id ON payments (member_id);
 -- this plain index covers resolved=TRUE lookups and FK enforcement.
 CREATE INDEX IF NOT EXISTS idx_anomalies_gym_id ON anomalies (gym_id);
 
--- ── payments covering index for cross-gym revenue (Q5) ───────────────────────
--- Query (analytics.ts /revenue/comparison):
---   SELECT p.gym_id, SUM(p.amount)
---   FROM payments p
---   WHERE p.paid_at >= NOW() - INTERVAL '30 days'
---   GROUP BY p.gym_id, g.name
---
--- Why this is better than the simple idx_payments_date (paid_at DESC) in 001:
---   • Leading column `paid_at DESC` → index range scan for the 30-day window
---   • Second column `gym_id`       → used directly in GROUP BY, no extra sort
---   • INCLUDE (amount)             → value read from index leaf; zero heap fetches
--- Result: true index-only scan for Q5.  idx_payments_date stays in 001 for
--- simpler range queries that don't need gym_id/amount; planner will pick the
--- covering index for Q5 automatically.
-CREATE INDEX IF NOT EXISTS idx_payments_date_covering
-  ON payments (paid_at DESC, gym_id)
-  INCLUDE (amount);
-
+-- Covering index for cross-gym revenue comparison (Q5) and any paid_at range query:
+--   • paid_at DESC  — range scan for the N-day window
+--   • gym_id        — GROUP BY key read from the index leaf, no extra sort
+--   • INCLUDE amount — aggregate value in the leaf; zero heap fetches
+--   • fillfactor=100 — payments are append-only (never UPDATEd), so reserving
+--                      page space for HOT updates is wasted I/O; full packing
+--                      shrinks the index and reduces the range-scan page count
+-- Result: true index-only scan for the 30-day cross-gym revenue query.
+CREATE INDEX IF NOT EXISTS idx_payments_date
+    ON payments (paid_at DESC, gym_id)
+    INCLUDE (amount)
+    WITH (fillfactor = 100);
 -- ── members.email unique partial ──────────────────────────────────────────────
 -- Not primarily a performance index — this is a data-integrity constraint.
 -- Prevents duplicate emails while allowing multiple NULL values (members without email).
