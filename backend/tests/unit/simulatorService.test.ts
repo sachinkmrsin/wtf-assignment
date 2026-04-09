@@ -45,7 +45,7 @@ describe('simulateCheckin', () => {
       .mockResolvedValueOnce({
         rows: [{ id: 'member-uuid-1', name: 'Alice', plan_type: 'monthly' }],
       }) // getRandomMemberForGym
-      .mockResolvedValueOnce({ rows: [] }) // INSERT checkin
+      .mockResolvedValueOnce({ rows: [{ id: 'checkin-uuid-1' }] }) // INSERT checkin RETURNING id
       .mockResolvedValueOnce({ rows: [] }) // UPDATE member.last_checkin_at
       .mockResolvedValueOnce({ rows: [{ count: '5' }] }) // live occupancy count
       .mockResolvedValueOnce({ rows: [{ capacity: 100 }] }); // gym capacity
@@ -177,7 +177,7 @@ describe('runSimulatorTick', () => {
 
     mockQuery
       .mockResolvedValueOnce({ rows: [{ id: 'member-uuid-1', name: 'Dave', plan_type: 'annual' }] })
-      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [{ id: 'checkin-uuid-2' }] }) // INSERT checkin RETURNING id
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [{ count: '3' }] })
       .mockResolvedValueOnce({ rows: [{ capacity: 100 }] });
